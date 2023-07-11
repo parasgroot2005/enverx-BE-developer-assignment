@@ -2,18 +2,16 @@ import express from "express";
 import helmet from "helmet";
 import bodyParser from "body-parser";
 import session from "express-session";
-import passport from "passport";
 import cookieParser from "cookie-parser";
-import { saveToken} from './authentication/authVerify'
+
 
 
 require("dotenv").config();
-require("./googleApi/passportGoogleSSO");
 
-require("./models/user");
 
 const connections = require("./connections");
-const api = require("./googleApi/loginWithGoogle");
+const blogAPI = require("./BlogApi/userLogin");
+const blogCRUD = require("./BlogApi/blogCRUD");
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -33,16 +31,7 @@ app.use(function(req, res, next) {
   
   next();
   });
-app.use(express.json());
 
-app.post("/login/google", (req, res) => {
-  const { googleId } = req.body;
-  
-  // Authenticate the user and generate the JWT
-  const token = saveToken(googleId);
-  
-  res.json({ token });
-});
 
 app.use(
   session({
@@ -51,14 +40,14 @@ app.use(
     secret: "bla bla bla",
   })
 );
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.get("/", (req: any, res: any) => {
-  res.redirect("/login/google");
+  res.redirect("/blog");
 });
 
-app.use("/", api);
+
+app.use("/", blogCRUD)
+app.use("/", blogAPI)
 app.use(connections.notFound);
 app.use(connections.errorHandler);
 

@@ -8,5 +8,4 @@ export interface Blog {
   tags: string[];
   isPublished: boolean;
   views: number;
-  comments: Comment[];
 }
